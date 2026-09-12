@@ -1,3 +1,4 @@
 .env
 VITE_NASA_KEY.env
 .vite/
+dist/

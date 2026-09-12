@@ -7,7 +7,6 @@ Real Tab is a stylish new-tab homepage for searching the web. It shows the curre
 Clone the repository and install the dependencies:
 
 ```bash
-cd Real-tab
 npm install
 ```
 
@@ -19,10 +18,10 @@ VITE_NASA_API_KEY=your_actual_key_here
 
 You can get a free NASA API key from [api.nasa.gov](https://api.nasa.gov/).
 
-Start the development server from inside the `Real-tab` folder:
+Start the development server:
 
 ```bash
-npm run dev -- ..
+npm run dev
 ```
 
 Open the URL printed in the terminal, usually [http://localhost:5173](http://localhost:5173/).
@@ -40,8 +39,13 @@ Open the URL printed in the terminal, usually [http://localhost:5173](http://loc
 ## Deploy Your Own Copy
 
 1. Push the repository to GitHub.
-2. Add your NASA API key as a repository secret named `VITE_NASA_API_KEY`.
-3. Configure your deployment platform to run the Vite build from the project root.
+2. Add your NASA API key as a repository secret named `VITE_NASA_API_KEY` under **Settings → Secrets and variables → Actions**.
+3. Under **Settings → Pages**, set **Source** to **GitHub Actions**.
+4. Push to `master`. The workflow in `.github/workflows/deploy-pages.yml` builds and deploys the site.
+
+Your site will be available at:
+
+`https://realguy-beep.github.io/Realtab/`
 
 ## Built With
 
