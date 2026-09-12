@@ -2,6 +2,7 @@
 
 Real Tab is a stylish new-tab homepage for searching the web. It shows the current time and date, a rotating NASA Astronomy Picture of the Day background, quick links, and current news headlines.
 
+You can try the project through this link:https://realguy-beep.github.io/Realtab/
 ## Setup
 
 Clone the repository and install the dependencies:
