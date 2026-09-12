@@ -2,3 +2,4 @@
 VITE_NASA_KEY.env
 .vite/
 dist/
+node_modules/
