@@ -1,4 +1,5 @@
-const NASA_KEY = import.meta.env.VITE_NASA_API_KEY || import.meta.env.VITE_NASA_KEY || 'DEMO_KEY';
+const env = import.meta.env || {};
+const NASA_KEY = env.VITE_NASA_API_KEY || env.VITE_NASA_KEY || 'DEMO_KEY';
 const FALLBACK_BACKGROUND = 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=2400&q=85';
 
 function tick(){
@@ -70,25 +71,67 @@ document.getElementById('info-btn').addEventListener('click', () => {
 });
 
 async function loadAPOD(){
+  const layer = document.getElementById('bg-layer');
+  const caption = document.getElementById('apod-caption');
+  const banner = document.getElementById('key-banner');
+
+  function applyBackground(url){
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => {
+        layer.style.backgroundImage = `url("${url}")`;
+        layer.classList.add('loaded');
+        resolve();
+      };
+      image.onerror = reject;
+      image.src = url;
+    });
+  }
+
+  function applyVideo(url){
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.autoplay = true;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.oncanplay = () => {
+        layer.replaceChildren(video);
+        layer.style.backgroundImage = 'none';
+        layer.classList.add('loaded');
+        resolve();
+      };
+      video.onerror = reject;
+      video.src = url;
+      video.load();
+    });
+  }
+
   try{
     const res = await fetch(`https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(NASA_KEY)}`);
     if (!res.ok) throw new Error('APOD fetch failed');
     const data = await res.json();
 
-    const imgUrl = data.media_type === 'image' ? (data.hdurl || data.url) : data.url;
-    const layer = document.getElementById('bg-layer');
-    layer.style.backgroundImage = `url("${imgUrl}")`;
-    layer.classList.add('loaded');
-    document.getElementById('apod-caption').textContent = data.title || '';
+    const isDirectVideo = data.media_type === 'video'
+      && /\.(mp4|webm|ogg)(?:$|\?)/i.test(data.url || '');
+    if (isDirectVideo) {
+      await applyVideo(data.url);
+    } else {
+      const imageUrl = data.media_type === 'image'
+        ? (data.hdurl || data.url)
+        : data.thumbnail_url;
+      await applyBackground(imageUrl || FALLBACK_BACKGROUND);
+    }
+    caption.textContent = data.title || '';
     if (NASA_KEY === 'DEMO_KEY') {
-      document.getElementById('key-banner').classList.add('show');
+      banner.classList.add('show');
     }
   } catch (e) {
-    const layer = document.getElementById('bg-layer');
-    layer.style.backgroundImage = `url("${FALLBACK_BACKGROUND}")`;
-    layer.classList.add('loaded');
-    document.getElementById('apod-caption').textContent = 'NASA\'s background is temporarily rate-limited.';
-    document.getElementById('key-banner').classList.add('show');
+    await applyBackground(FALLBACK_BACKGROUND).catch(() => {});
+    caption.textContent = 'NASA\'s background is temporarily unavailable.';
+    if (NASA_KEY === 'DEMO_KEY') {
+      banner.classList.add('show');
+    }
   }
 }
 loadAPOD();
